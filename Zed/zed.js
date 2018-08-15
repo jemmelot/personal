@@ -1,7 +1,12 @@
 // Zed properties
 var zed = document.getElementById("zed");
 var q = document.getElementById("q");
+var qTwo = document.getElementById("q-two");
+var w = document.getElementById("w");
+
+// spell properties
 var qSpeed = 1;
+var wSpeed = 1;
 
 // instantiate mouse coordinate variables
 var mouseX;
@@ -33,7 +38,7 @@ document.onkeydown = function (e) {
 			myMove(q, qSpeed);
             break;
         case "w":
-            // down arrow
+            myMove(w, wSpeed);
             break;
         case "e":
             // left arrow
@@ -44,55 +49,52 @@ document.onkeydown = function (e) {
 };
 
 function myMove(spell, speed){
-	var position = 0;
-	var endPoint = 0;
-	var index = 0;
+	// instantiate positions of Zed and his W
+	var zedPosition = 0;
+	var zedEndPoint = 0;
+	var zedIndex = 0;
 		
-	// determine current position of Zed
-	var positionX = parseInt(zed.getAttribute("cx"));
-	var positionY = parseInt(zed.getAttribute("cy"));
+	var wPosition = 0;
+	var wEndPoint = 0;
+	var wIndex = 0;
+		
+	// determine current position of Zed and his W
+	var zedX = parseInt(zed.getAttribute("cx"));
+	var zedY = parseInt(zed.getAttribute("cy"));
+	var wX = parseInt(w.getAttribute("cx"));
+	var wY = parseInt(w.getAttribute("cy"));
 	
 	// determine distance between Zed and the mouse
-	var xDistance = (mouseX - positionX);
-	var yDistance = (mouseY - positionY);
+	var zedDistanceX = (mouseX - zedX);
+	var zedDistanceY = (mouseY - zedY);
+	var wDistanceX = (mouseX - wX);
+	var wDistanceY = (mouseY - wY);
 	
-	// reset spell to Zed's position
-	q.setAttribute("cx", String(positionX));
-	q.setAttribute("cy", String(positionY));
+	// instantiate distance ratios
+	var zedRatio = 0;
+	var wRatio = 0;
+	
+	// reset q positions
+	q.setAttribute("cx", String(zedX));
+	q.setAttribute("cy", String(zedY));
+	qTwo.setAttribute("cx", String(zedX));
+	qTwo.setAttribute("cy", String(zedY));
 		
 	console.log("mouse position = ", mouseX, mouseY)
-	console.log("ball position = ", positionX, positionY)
-	console.log("distances = ", xDistance, yDistance)
+	//console.log("ball position = ", positionX, positionY)
+	//console.log("distances = ", xDistance, yDistance)
 	
-	if (xDistance == 0) {
-		position = positionY;
-		endPoint = (positionY + yDistance);
-		index = 0;
-	}
-	else if (yDistance == 0) {
-		position = positionX;
-		endPoint = (positionX + xDistance);
-		index = 1;
-	}
-	else {
-		var ratio = (xDistance/yDistance);
+	zedIndex = checkRatio(zedPosition, zedX, zedY, zedDistanceX, zedDistanceY, zedEndPoint, zedRatio, zedIndex)[0];
+	zedRatio = checkRatio(zedPosition, zedX, zedY, zedDistanceX, zedDistanceY, zedEndPoint, zedRatio, zedIndex)[1];
+	wIndex = checkRatio(wPosition, wX, wY, wDistanceX, wDistanceY, wEndPoint, wRatio, wIndex)[0];
+	wRatio = checkRatio(wPosition, wX, wY, wDistanceX, wDistanceY, wEndPoint, wRatio, wIndex)[1];
 		
-		if (Math.abs(ratio) > 1) {
-			position = positionX;
-			endPoint = (positionX + xDistance);
-		}
-		else {
-			position = positionY;
-			endPoint = (positionY + yDistance);
-		}
-		
-		index = 2;
-	};
-	
 	var interval = setInterval(frame, speed);
 	
 	function frame() {
-		if (position == endPoint) {
+		
+		
+		if (position == endPoint || position == 300) {
 			clearInterval(interval);
 		}		
 				
@@ -122,4 +124,38 @@ function myMove(spell, speed){
 			}
 		}
 	}
+};
+
+function checkRatio(position, positionX, positionY, xDistance, yDistance, endPoint, ratio, index) {
+	var returner = [];
+	
+	if (xDistance == 0) {
+		position = positionY;
+		endPoint = (positionY + yDistance);
+		index = 0;
+		returner = [index, 0];
+	}
+	else if (yDistance == 0) {
+		position = positionX;
+		endPoint = (positionX + xDistance);
+		index = 1;
+		returner = [index, 0];
+	}
+	else {
+		var ratio = (xDistance/yDistance);
+		
+		if (Math.abs(ratio) > 1) {
+			position = positionX;
+			endPoint = (positionX + xDistance);
+		}
+		else {
+			position = positionY;
+			endPoint = (positionY + yDistance);
+		}
+		
+		index = 2;
+		returner = [index, ratio];
+	};
+		
+	return returner;
 };
